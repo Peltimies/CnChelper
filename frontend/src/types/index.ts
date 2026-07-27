@@ -76,6 +76,14 @@ export interface Monster {
   combat: string;
 }
 
+export interface Treasure {
+  _id: string;
+  name: string;
+  category: string;
+  description: string;
+  source: string;
+}
+
 export interface MishapEntry {
   _id: string;
   roll: number;

@@ -14,6 +14,7 @@ import Bestiary from './pages/Bestiary';
 import MonsterDetail from './pages/MonsterDetail';
 import CombatList from './pages/CombatList';
 import CombatTracker from './pages/CombatTracker';
+import Treasures from './pages/Treasures';
 import MishapTable from './pages/MishapTable';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -50,6 +51,7 @@ export default function App() {
         <Route path="spells" element={<Spells />} />
         <Route path="bestiary" element={<Bestiary />} />
         <Route path="bestiary/:id" element={<MonsterDetail />} />
+        <Route path="treasures" element={<Treasures />} />
         <Route path="combat" element={<CombatList />} />
         <Route path="combat/:id" element={<CombatTracker />} />
         <Route path="" element={<Navigate to="/characters" />} />

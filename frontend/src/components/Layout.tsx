@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuthStore } from '../stores/auth';
-import { ScrollText, Swords, Users, LogOut, Menu, Sparkles } from 'lucide-react';
+import { ScrollText, Swords, Users, LogOut, Menu, Sparkles, Gem } from 'lucide-react';
 import { useState } from 'react';
 
 export default function Layout() {
@@ -18,6 +18,7 @@ export default function Layout() {
     { path: '/characters', label: 'Characters', icon: Users },
     { path: '/spells', label: 'Spells', icon: Sparkles },
     { path: '/bestiary', label: 'Bestiary', icon: ScrollText },
+    { path: '/treasures', label: 'Treasures', icon: Gem },
     { path: '/combat', label: 'Combat', icon: Swords },
   ];
 
