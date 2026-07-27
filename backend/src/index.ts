@@ -34,7 +34,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 if (process.env.NODE_ENV === 'production') {
-  const staticPath = path.resolve(__dirname, '../../frontend/dist');
+  const staticPath = path.resolve(__dirname, '../../../frontend/dist');
   app.use(express.static(staticPath));
   app.get('*', (_req, res) => {
     res.sendFile(path.join(staticPath, 'index.html'));
