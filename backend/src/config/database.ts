@@ -1,7 +1,15 @@
 import { DatabaseSync } from 'node:sqlite';
+import fs from 'fs';
 import path from 'path';
 
 const dbPath = process.env.DB_PATH || path.resolve(__dirname, '../../cnc_helper.db');
+
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
+console.log('SQLite path:', dbPath, 'exists:', fs.existsSync(dbDir));
 
 export const db = new DatabaseSync(dbPath);
 db.exec('PRAGMA journal_mode = WAL');
