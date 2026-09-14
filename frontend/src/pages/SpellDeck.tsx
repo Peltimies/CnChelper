@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { Character } from '../types';
@@ -12,12 +12,14 @@ export default function SpellDeck() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [levelFilter, setLevelFilter] = useState<number | null>(null);
+  const prevCharacterId = useRef<string | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
       try {
         const data = await api.get<{ character: Character }>(`/characters/${id}`);
         setCharacter(data.character);
+        prevCharacterId.current = id || null;
       } catch {
         // ignore
       }
@@ -40,14 +42,15 @@ export default function SpellDeck() {
     );
   }
 
-  const presentLevels = useMemo(
-    () => [...new Set(character.knownSpells.map((s) => s.level).filter((l) => typeof l === 'number' && !isNaN(l)))].sort((a, b) => a - b),
-    [character.knownSpells]
-  );
+  const knownSpells = character.knownSpells || [];
+
+  const presentLevels = useMemo(() => {
+    return [...new Set(knownSpells.map((s) => s.level).filter((l) => typeof l === 'number' && !isNaN(l)))].sort((a, b) => a - b);
+  }, [knownSpells]);
 
   const visibleSpells = useMemo(() => {
     const q = search.toLowerCase();
-    return character.knownSpells
+    return knownSpells
       .filter((s) => {
         const level = typeof s.level === 'number' ? s.level : -1;
         return (levelFilter === null || level === levelFilter) && (!q || s.name.toLowerCase().includes(q));
@@ -57,7 +60,7 @@ export default function SpellDeck() {
         const bLevel = typeof b.level === 'number' ? b.level : -1;
         return aLevel - bLevel || a.name.localeCompare(b.name);
       });
-  }, [character.knownSpells, levelFilter, search]);
+  }, [knownSpells, levelFilter, search]);
 
   return (
     <div className="space-y-6">
@@ -110,8 +113,8 @@ export default function SpellDeck() {
             {visibleSpells.map((spell) => {
                 if (!spell || !spell._id || !spell.name) return null;
                 const isCantrip = spell.level === 0;
-                const isMemorized = !isCantrip && character.memorizedSpells.some((s) => s._id === spell._id);
-                const isLost = !isCantrip && character.lostSpells.some((s) => s._id === spell._id);
+                const isMemorized = !isCantrip && (character.memorizedSpells || []).some((s) => s._id === spell._id);
+                const isLost = !isCantrip && (character.lostSpells || []).some((s) => s._id === spell._id);
                 return (
                   <div
                     key={spell._id}
