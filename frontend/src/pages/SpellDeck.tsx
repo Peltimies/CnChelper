@@ -28,21 +28,7 @@ export default function SpellDeck() {
     fetch();
   }, [id]);
 
-  if (loading) return <p className="text-parchment-600">Loading...</p>;
-  if (!character) return <p className="text-parchment-600">Character not found</p>;
-  if (!isCharacterSpellcaster(character.classes)) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-parchment-600 font-body text-lg italic mb-4">Not a spellcaster</p>
-        <p className="text-sm text-parchment-500 font-body mb-4">
-          {character.name} is a {character.classes.map((c) => c.name).join(' / ')} and cannot use spells.
-        </p>
-        <Link to={`/characters/${id}`} className="btn btn-primary">Back to Character</Link>
-      </div>
-    );
-  }
-
-  const knownSpells = character.knownSpells || [];
+  const knownSpells = character?.knownSpells || [];
 
   const presentLevels = useMemo(() => {
     return [...new Set(knownSpells.map((s) => s.level).filter((l) => typeof l === 'number' && !isNaN(l)))].sort((a, b) => a - b);
@@ -61,6 +47,20 @@ export default function SpellDeck() {
         return aLevel - bLevel || a.name.localeCompare(b.name);
       });
   }, [knownSpells, levelFilter, search]);
+
+  if (loading) return <p className="text-parchment-600">Loading...</p>;
+  if (!character) return <p className="text-parchment-600">Character not found</p>;
+  if (!isCharacterSpellcaster(character.classes)) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-parchment-600 font-body text-lg italic mb-4">Not a spellcaster</p>
+        <p className="text-sm text-parchment-500 font-body mb-4">
+          {character.name} is a {character.classes.map((c) => c.name).join(' / ')} and cannot use spells.
+        </p>
+        <Link to={`/characters/${id}`} className="btn btn-primary">Back to Character</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
