@@ -11,7 +11,13 @@ interface SpellRow {
 }
 
 function formatSpell(row: SpellRow) {
-  return { ...row, classes: JSON.parse(row.classes), reversible: !!row.reversible };
+  let classes: string[] = [];
+  try {
+    classes = JSON.parse(row.classes);
+  } catch {
+    classes = Array.isArray(row.classes) ? row.classes : [];
+  }
+  return { ...row, classes, reversible: !!row.reversible };
 }
 
 router.get('/', (req, res: Response) => {
