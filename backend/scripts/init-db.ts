@@ -6,7 +6,16 @@ import { db } from '../src/config/database';
 
 dotenv.config();
 
-const SPELLBOOK_PATH = path.resolve(__dirname, '../../750063928-Castles-Crusades-TLG-Adventurers-Spellbook-OEF-2022-02-15-TLG.txt');
+const SPELLBOOK_FILENAME = '750063928-Castles-Crusades-TLG-Adventurers-Spellbook-OEF-2022-02-15-TLG.txt';
+// ponytail: __dirname depth differs between ts-node (backend/scripts) and compiled dist (backend/dist/scripts),
+// so try both depths plus cwd-relative fallbacks instead of hardcoding one.
+const SPELLBOOK_CANDIDATES = [
+  path.resolve(__dirname, '../../', SPELLBOOK_FILENAME),
+  path.resolve(__dirname, '../../../', SPELLBOOK_FILENAME),
+  path.resolve(process.cwd(), '../', SPELLBOOK_FILENAME),
+  path.resolve(process.cwd(), SPELLBOOK_FILENAME),
+];
+const SPELLBOOK_PATH = SPELLBOOK_CANDIDATES.find(p => fs.existsSync(p)) || SPELLBOOK_CANDIDATES[0];
 
 interface ParsedSpell {
   name: string;
