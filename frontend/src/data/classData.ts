@@ -59,6 +59,8 @@ export const CLASSES: Record<string, ClassInfo> = {
   Bard: { name: 'Bard', primeAttribute: 'cha', hitDie: 10, isSpellcaster: true, spellType: 'arcane', spellTable: WIZARD_SPELLS },
   Cleric: { name: 'Cleric', primeAttribute: 'wis', hitDie: 8, isSpellcaster: true, spellType: 'divine', spellTable: CLERIC_SPELLS },
   Druid: { name: 'Druid', primeAttribute: 'wis', hitDie: 8, isSpellcaster: true, spellType: 'divine', spellTable: CLERIC_SPELLS },
+  Dwarf: { name: 'Dwarf', primeAttribute: 'str', hitDie: 10, isSpellcaster: false, spellType: null, spellTable: [] },
+  Elf: { name: 'Elf', primeAttribute: 'int', hitDie: 4, isSpellcaster: true, spellType: 'arcane', spellTable: WIZARD_SPELLS },
   Fighter: { name: 'Fighter', primeAttribute: 'str', hitDie: 10, isSpellcaster: false, spellType: null, spellTable: [] },
   Illusionist: { name: 'Illusionist', primeAttribute: 'int', hitDie: 4, isSpellcaster: true, spellType: 'arcane', spellTable: WIZARD_SPELLS },
   Knight: { name: 'Knight', primeAttribute: 'cha', hitDie: 10, isSpellcaster: false, spellType: null, spellTable: [] },
@@ -185,41 +187,21 @@ export const RACES: Record<string, RaceInfo> = {
     extraPrimaryAttributes: 0,
     abilities: ['Twilight vision', 'Enhanced senses (+2 listen)', 'Spell resistance vs charm/sleep +10', 'Spot hidden doors', 'Weapon training (+1 bow/sword)'],
   },
-  Gnome: {
-    name: 'Gnome',
-    size: 'Small',
-    movement: 20,
-    attrModifiers: { int: 1, str: -1 },
-    extraPrimaryAttributes: 0,
-    abilities: ['Darkvision 60ft', 'Enhanced hearing (+3 listen)', 'Innate spells (dancing lights, ghost sound, prestidigitation)', 'Combat expertise vs goblins/kobolds +1'],
-  },
-  'Half-Elf': {
-    name: 'Half-Elf',
-    size: 'Medium',
-    movement: 30,
-    attrModifiers: { dex: 1, con: -1 },
-    extraPrimaryAttributes: 0,
-    abilities: ['Choose lineage (elf or human)', 'Empathy (+2 charisma checks)', 'Move silently', 'Spot hidden doors', 'Spell resistance vs charm/sleep'],
-  },
-  Halfling: {
-    name: 'Halfling',
-    size: 'Small',
-    movement: 20,
-    attrModifiers: { dex: 1, str: -1 },
-    extraPrimaryAttributes: 0,
-    abilities: ['Duskvision', 'Resist constitution saves +1', 'Move silently', 'Conceal'],
-  },
-  'Half-Orc': {
-    name: 'Half-Orc',
-    size: 'Medium',
-    movement: 30,
-    attrModifiers: { con: 1, str: 1, cha: -2 },
-    extraPrimaryAttributes: 0,
-    abilities: ['Darkvision 60ft', 'Enhanced smell', 'Martial prowess (+1 AC unarmored)', 'Resist disease +2'],
-  },
 };
 
 export const RACE_NAMES = Object.keys(RACES).sort();
+
+export function getAvailableClassesForRace(raceName: string): string[] {
+  switch (raceName) {
+    case 'Dwarf':
+      return ['Dwarf'];
+    case 'Elf':
+      return ['Elf'];
+    case 'Human':
+    default:
+      return CLASS_NAMES.filter(c => c !== 'Dwarf' && c !== 'Elf');
+  }
+}
 
 export function applyRacialModifiers(baseAttrs: Record<AttrKey, number>, raceName: string): Record<AttrKey, number> {
   const race = RACES[raceName];
@@ -238,6 +220,8 @@ const EPP_TABLES: Record<string, number[]> = {
   Bard:      [0, 1501, 3251, 7501, 15001, 30001, 60001, 120001, 240001, 450001, 625001, 800001],
   Cleric:    [0, 2251, 5001, 9001, 18001, 35001, 70001, 140001, 300001, 425001, 650001, 900001],
   Druid:     [0, 2001, 4251, 8501, 17001, 35001, 70001, 180001, 275001, 400001, 525001, 650001],
+  Dwarf:     [0, 2001, 4001, 8501, 17001, 34001, 68001, 136001, 272001, 500001, 750001, 1000001],
+  Elf:       [0, 2601, 5201, 10401, 20801, 42501, 85001, 170001, 340001, 500001, 750001, 1000001],
   Fighter:   [0, 2001, 4001, 8501, 17001, 34001, 68001, 136001, 272001, 500001, 750001, 1000001],
   Illusionist:[0, 2601, 5201, 10401, 20801, 42501, 85001, 170001, 340001, 500001, 750001, 900001],
   Knight:    [0, 2251, 4501, 9001, 18001, 36001, 72001, 150001, 300001, 600001, 725001, 900001],
@@ -250,7 +234,7 @@ const EPP_TABLES: Record<string, number[]> = {
 
 const EPP_POST12: Record<string, number> = {
   Assassin: 150000, Barbarian: 200000, Bard: 175000, Cleric: 250000, Druid: 175000,
-  Fighter: 250000, Illusionist: 150000, Knight: 175000, Monk: 250000, Paladin: 300000,
+  Dwarf: 250000, Elf: 250000, Fighter: 250000, Illusionist: 150000, Knight: 175000, Monk: 250000, Paladin: 300000,
   Ranger: 225000, Rogue: 125000, Wizard: 250000,
 };
 
@@ -261,6 +245,8 @@ const BTH_TABLES: Record<string, number[]> = {
   Bard:      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
   Cleric:    [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6],
   Druid:     [0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6],
+  Dwarf:     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  Elf:       [0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3],
   Fighter:   [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
   Illusionist:[0, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3],
   Knight:    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
@@ -274,7 +260,7 @@ const BTH_TABLES: Record<string, number[]> = {
 // HP after level 10: fixed additions instead of HD
 const POST10_HP: Record<string, number> = {
   Assassin: 2, Barbarian: 5, Bard: 4, Cleric: 3, Druid: 3,
-  Fighter: 4, Illusionist: 1, Knight: 4, Monk: 5, Paladin: 4,
+  Dwarf: 4, Elf: 1, Fighter: 4, Illusionist: 1, Knight: 4, Monk: 5, Paladin: 4,
   Ranger: 4, Rogue: 2, Wizard: 1,
 };
 

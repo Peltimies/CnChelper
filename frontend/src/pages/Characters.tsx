@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api';
 import type { Character, Attributes } from '../types';
 import { Plus, ChevronRight, Dices } from 'lucide-react';
-import { CLASSES, CLASS_NAMES, RACES, RACE_NAMES, roll3d6, attrMod, getStartingSpellCount, applyRacialModifiers, type AttrKey } from '../data/classData';
+import { CLASSES, CLASS_NAMES, RACES, RACE_NAMES, roll3d6, attrMod, getStartingSpellCount, applyRacialModifiers, getAvailableClassesForRace, type AttrKey } from '../data/classData';
 
 const ATTR_LABELS: Record<string, string> = {
   str: 'Strength', int: 'Intelligence', wis: 'Wisdom',
@@ -58,6 +58,10 @@ export default function Characters() {
   const handleRaceChange = (race: string) => {
     setNewRace(race);
     setSecondaryPrimes([]);
+    const availableClasses = getAvailableClassesForRace(race);
+    if (!availableClasses.includes(newClass)) {
+      setNewClass(availableClasses[0]);
+    }
   };
 
   const toggleSecondaryPrime = (key: AttrKey) => {
@@ -142,9 +146,15 @@ export default function Characters() {
 
           <div>
             <label className="label">Class</label>
-            <select className="input" value={newClass} onChange={(e) => handleClassChange(e.target.value)}>
-              {CLASS_NAMES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
+            {(newRace === 'Dwarf' || newRace === 'Elf') ? (
+              <div className="input bg-parchment-100 text-parchment-700 font-semibold">
+                {newClass}
+              </div>
+            ) : (
+              <select className="input" value={newClass} onChange={(e) => handleClassChange(e.target.value)}>
+                {getAvailableClassesForRace(newRace).map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+            )}
             <p className="text-xs text-parchment-500 mt-1 font-body">
               Prime: {ATTR_LABELS[classInfo.primeAttribute]} | HD: d{classInfo.hitDie}
               {classInfo.isSpellcaster ? ` | ${classInfo.spellType} spellcaster` : ''}
