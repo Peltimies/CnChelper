@@ -13,6 +13,11 @@ import combatRoutes from './routes/combat';
 
 dotenv.config();
 
+// Initialize database with spell imports
+import('../scripts/init-db').then(({ initializeDatabase }) => {
+  initializeDatabase().catch(err => console.error('Database initialization failed:', err));
+}).catch(err => console.error('Failed to load init-db script:', err));
+
 const app = express();
 
 app.use(cors({
