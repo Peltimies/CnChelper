@@ -58,7 +58,10 @@ export default function LearnSpells() {
 
         // Cantrips (level 0) are always known automatically — learn them silently
         const cantrips = spellData.spells.filter(
-          (spell) => spell.level === 0 &&
+          (spell) => spell &&
+            typeof spell.level === 'number' &&
+            spell.level === 0 &&
+            Array.isArray(spell.classes) &&
             spell.classes.some((c) => charClasses.includes(c.toLowerCase())) &&
             !knownSpellIds.includes(spell._id)
         );
@@ -70,7 +73,10 @@ export default function LearnSpells() {
         // Swipe deck: level 1+ spells only, respecting per-level cap
         const filtered = spellData.spells.filter(
           (spell) =>
+            spell &&
+            typeof spell.level === 'number' &&
             spell.level > 0 &&
+            Array.isArray(spell.classes) &&
             spell.classes.some((c) => charClasses.includes(c.toLowerCase())) &&
             !knownSpellIds.includes(spell._id) &&
             spell.level <= highestCastableLevel &&

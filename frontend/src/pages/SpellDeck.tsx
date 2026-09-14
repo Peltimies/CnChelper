@@ -41,15 +41,22 @@ export default function SpellDeck() {
   }
 
   const presentLevels = useMemo(
-    () => [...new Set(character.knownSpells.map((s) => s.level))].sort((a, b) => a - b),
+    () => [...new Set(character.knownSpells.map((s) => s.level).filter((l) => typeof l === 'number' && !isNaN(l)))].sort((a, b) => a - b),
     [character.knownSpells]
   );
 
   const visibleSpells = useMemo(() => {
     const q = search.toLowerCase();
     return character.knownSpells
-      .filter((s) => (levelFilter === null || s.level === levelFilter) && (!q || s.name.toLowerCase().includes(q)))
-      .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+      .filter((s) => {
+        const level = typeof s.level === 'number' ? s.level : -1;
+        return (levelFilter === null || level === levelFilter) && (!q || s.name.toLowerCase().includes(q));
+      })
+      .sort((a, b) => {
+        const aLevel = typeof a.level === 'number' ? a.level : -1;
+        const bLevel = typeof b.level === 'number' ? b.level : -1;
+        return aLevel - bLevel || a.name.localeCompare(b.name);
+      });
   }, [character.knownSpells, levelFilter, search]);
 
   return (
@@ -101,6 +108,7 @@ export default function SpellDeck() {
         ) : (
           <div className="space-y-2">
             {visibleSpells.map((spell) => {
+                if (!spell || !spell._id || !spell.name) return null;
                 const isCantrip = spell.level === 0;
                 const isMemorized = !isCantrip && character.memorizedSpells.some((s) => s._id === spell._id);
                 const isLost = !isCantrip && character.lostSpells.some((s) => s._id === spell._id);
@@ -113,12 +121,12 @@ export default function SpellDeck() {
                       <div className="flex-1">
                         <p className="font-serif font-semibold text-parchment-900">
                           {spell.name} {spell.reversible && '*'}
-                          <span className="text-xs text-parchment-500 ml-2 font-body">Lv {spell.level}</span>
+                          <span className="text-xs text-parchment-500 ml-2 font-body">Lv {spell.level ?? '?'}</span>
                         </p>
                         <p className="text-xs text-parchment-500 mt-1 font-body">
-                          CT {spell.castingTime} | R {spell.range} | D {spell.duration} | SV {spell.savingThrow} | SR {spell.spellResistance} | Comp {spell.components}
+                          CT {spell.castingTime || '—'} | R {spell.range || '—'} | D {spell.duration || '—'} | SV {spell.savingThrow || '—'} | SR {spell.spellResistance || '—'} | Comp {spell.components || '—'}
                         </p>
-                        <div className="mt-2 line-clamp-3"><SpellDescription text={spell.description} /></div>
+                        <div className="mt-2 line-clamp-3">{spell.description && <SpellDescription text={spell.description} />}</div>
                       </div>
                       <div className="ml-2 flex flex-col gap-1 items-end">
                         {isCantrip && <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-serif">Always Known</span>}
